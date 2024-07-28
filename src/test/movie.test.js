@@ -3,6 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { renderWithProviders } from "./utils";
 import App from "../App";
 
+import "./intersectionObserver.mock";
+
 it("movies starred and saved to watch later", async () => {
   renderWithProviders(<App />);
 
