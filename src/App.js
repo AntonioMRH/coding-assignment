@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Routes,
   Route,
@@ -9,12 +9,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import "reactjs-popup/dist/index.css";
 import { fetchMovies } from "./data/moviesSlice";
-import {
-  ENDPOINT_SEARCH,
-  ENDPOINT_DISCOVER,
-  ENDPOINT,
-  API_KEY,
-} from "./constants";
+import { ENDPOINT_SEARCH, ENDPOINT, API_KEY } from "./constants";
 import Header from "./components/Header";
 import Movies from "./components/Movies";
 import Starred from "./components/Starred";
@@ -22,46 +17,50 @@ import WatchLater from "./components/WatchLater";
 import YouTubePlayer from "./components/YoutubePlayer";
 import "./app.scss";
 import Modal from "./components/Modal";
+import { useFetchMovies } from "./hooks/useFetchMovies";
+import { useInfiniteScroll } from "./hooks/useInfiniteScroll";
 
 const App = () => {
-  const state = useSelector((state) => state);
-  const { movies } = state;
+  const { movies, fetchStatus, totalPages } = useSelector(
+    (state) => state.movies
+  );
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get("search");
   const [videoKey, setVideoKey] = useState(null);
   const [isOpen, setOpen] = useState(false);
-
+  const [page, setPage] = useState(1);
+  const hasMore = page < totalPages;
   const navigate = useNavigate();
+
+  useFetchMovies(searchQuery, page);
+
+  const incrementPage = useCallback(() => {
+    setPage((prevPage) => prevPage + 1);
+  }, []);
+
+  const lastMovieElementRef = useInfiniteScroll(
+    hasMore,
+    fetchStatus === "loading",
+    incrementPage
+  );
 
   const closeModal = () => setOpen(false);
 
-  const closeCard = () => {};
-
-  const getSearchResults = (query) => {
-    const endpoint = query
-      ? `${ENDPOINT_SEARCH}&query=${query}`
-      : ENDPOINT_DISCOVER;
-    dispatch(fetchMovies(endpoint));
-    setSearchParams(createSearchParams(query ? { search: query } : {}));
-  };
-
   const searchMovies = (query) => {
     navigate("/");
-    getSearchResults(query);
-  };
-
-  const getMovies = () => {
-    getSearchResults(searchQuery || "");
+    setPage(1);
+    dispatch(fetchMovies(`${ENDPOINT_SEARCH}&query=${query}&page=1`));
+    setSearchParams(createSearchParams({ search: query }));
   };
 
   const viewTrailer = async (movie) => {
-    const videoKey = await getMovieTrailer(movie.id);
+    const videoKey = await fetchMovieTrailer(movie.id);
     setVideoKey(videoKey);
     setOpen(true);
   };
 
-  const getMovieTrailer = async (id) => {
+  const fetchMovieTrailer = async (id) => {
     const URL = `${ENDPOINT}/movie/${id}?api_key=${API_KEY}&append_to_response=videos`;
     const videoData = await fetch(URL).then((response) => response.json());
 
@@ -73,10 +72,6 @@ const App = () => {
     }
     return null;
   };
-
-  useEffect(() => {
-    getMovies();
-  }, []);
 
   return (
     <div className="App">
@@ -110,7 +105,7 @@ const App = () => {
               <Movies
                 movies={movies}
                 viewTrailer={viewTrailer}
-                closeCard={closeCard}
+                lastMovieRef={lastMovieElementRef}
               />
             }
           />
