@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Routes,
   Route,
@@ -19,6 +19,7 @@ import "./app.scss";
 import Modal from "./components/Modal";
 import { useFetchMovies } from "./hooks/useFetchMovies";
 import { useInfiniteScroll } from "./hooks/useInfiniteScroll";
+import { debounce } from "./utils/debounce";
 
 const App = () => {
   const { movies, fetchStatus, totalPages } = useSelector(
@@ -47,12 +48,16 @@ const App = () => {
 
   const closeModal = () => setOpen(false);
 
-  const searchMovies = (query) => {
-    navigate("/");
-    setPage(1);
-    dispatch(fetchMovies(`${ENDPOINT_SEARCH}&query=${query}&page=1`));
-    setSearchParams(createSearchParams({ search: query }));
-  };
+  const debouncedSearchMovies = useMemo(
+    () =>
+      debounce((query) => {
+        navigate("/");
+        setPage(1);
+        dispatch(fetchMovies(`${ENDPOINT_SEARCH}&query=${query}&page=1`));
+        setSearchParams(createSearchParams({ search: query }));
+      }, 500),
+    [dispatch, navigate, setSearchParams]
+  );
 
   const viewTrailer = async (movie) => {
     const videoKey = await fetchMovieTrailer(movie.id);
@@ -76,7 +81,7 @@ const App = () => {
   return (
     <div className="App">
       <Header
-        searchMovies={searchMovies}
+        searchMovies={debouncedSearchMovies}
         searchParams={searchParams}
         setSearchParams={setSearchParams}
       />
