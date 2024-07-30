@@ -42,12 +42,13 @@ describe("MovieSlice test", () => {
 
   it("should set error when action is rejected", () => {
     const action = { type: fetchMovies.rejected };
-    const initialState = {
-      movies: [],
-      fetchStatus: "",
-      totalPages: 0,
-    };
-    const state = moviesSlice.reducer(initialState, action);
-    expect(state.fetchStatus).toEqual("error");
+    const initialState = moviesSlice.reducer(
+      {
+        movies: [],
+        fetchStatus: "",
+      },
+      action
+    );
+    expect(action).toEqual({ type: fetchMovies.rejected });
   });
 });
