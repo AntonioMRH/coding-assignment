@@ -6,11 +6,11 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useCallback, useMemo, useState } from "react";
-import "../styles/header.scss";
-import { debounce } from "../utils/debounce";
+import { useMemo, useState } from "react";
+import "./header.scss";
+import { debounce } from "../../../utils/debounce";
 
-const Header = ({ searchMovies }) => {
+const Header = () => {
   const starredMovies = useSelector((state) => state.starred.starredMovies);
   const [searchValue, setSearchValue] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
@@ -19,31 +19,38 @@ const Header = ({ searchMovies }) => {
   const debouncedSetSearchParams = useMemo(
     () =>
       debounce((value) => {
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: "auto",
+        });
         setSearchParams(createSearchParams({ search: value, page: 1 }));
       }, 500),
     [setSearchParams]
   );
 
-  const handleSearch = useCallback(
-    (e) => {
-      const value = e.target.value;
-      setSearchValue(value);
-      debouncedSetSearchParams(value);
-    },
-    [debouncedSetSearchParams]
-  );
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    debouncedSetSearchParams(value);
+  };
 
-  const handleHomeClick = useCallback(() => {
-    searchMovies("");
-    setSearchValue("");
+  const handleHomeClick = debounce(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
     navigate("/");
-  }, [searchMovies, navigate]);
+    setSearchValue("");
+    setSearchParams(createSearchParams({ page: 1 }));
+  }, 200);
 
   return (
     <header>
-      <Link to="/" data-testid="home">
+      <button data-testid="home" onClick={handleHomeClick} className="home-btn">
         <i className="bi bi-film" />
-      </Link>
+      </button>
       <nav>
         <NavLink
           to="/starred"

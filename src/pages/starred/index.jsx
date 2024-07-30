@@ -1,10 +1,10 @@
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import starredSlice from "../data/starredSlice";
-import Movie from "./Movie";
-import "../styles/starred.scss";
+import starredSlice from "../../data/starredSlice";
+import Movie from "../../components/Movie";
+import "./starred.scss";
 
-const Starred = ({ viewTrailer }) => {
+const Starred = () => {
   const { starredMovies } = useSelector((state) => state.starred);
   const { clearAllStarred } = starredSlice.actions;
   const dispatch = useDispatch();
@@ -18,7 +18,7 @@ const Starred = ({ viewTrailer }) => {
           <h6 className="header">Starred movies</h6>
           <div className="row">
             {starredMovies.map((movie) => (
-              <Movie movie={movie} key={movie.id} viewTrailer={viewTrailer} />
+              <Movie movie={movie} key={movie.id} />
             ))}
           </div>
 

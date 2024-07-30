@@ -32,27 +32,27 @@
     max-height: 70%;
     border-radius: 8px;
   }
-}
 
-button.modal-close {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  border-radius: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  top: 0px;
-  right: 0px;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #333;
-  margin: 0;
-  padding: 0;
+  button.modal-close {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 0px;
+    right: 0px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #333;
+    margin: 0;
+    padding: 0;
 
-  &:hover {
-    color: #000;
+    &:hover {
+      color: #000;
+    }
   }
 }

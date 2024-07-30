@@ -9,6 +9,16 @@ header {
   border: 1px solid transparent;
   border-radius: 0;
 
+  button.home-btn {
+    position: absolute;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    background: transparent;
+  }
+
   .input-group {
     float: right;
     width: 200px;

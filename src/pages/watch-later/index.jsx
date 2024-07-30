@@ -1,10 +1,10 @@
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import watchLaterSlice from "../data/watchLaterSlice";
-import Movie from "./Movie";
-import "../styles/starred.scss";
+import watchLaterSlice from "../../data/watchLaterSlice";
+import Movie from "../../components/Movie";
+import "./watch-later.scss";
 
-const WatchLater = ({ viewTrailer }) => {
+const WatchLater = () => {
   const { watchLaterMovies } = useSelector((state) => state.watchLater);
   const { removeAllWatchLater } = watchLaterSlice.actions;
   const dispatch = useDispatch();
@@ -18,7 +18,7 @@ const WatchLater = ({ viewTrailer }) => {
           <h6 className="header">Watch Later List</h6>
           <div className="row">
             {watchLaterMovies.map((movie) => (
-              <Movie movie={movie} key={movie.id} viewTrailer={viewTrailer} />
+              <Movie movie={movie} key={movie.id} />
             ))}
           </div>
           <footer className="text-center">

@@ -1,18 +1,18 @@
-import Movie from "./Movie";
-import "../styles/movies.scss";
+import Movie from "../../components/Movie";
+import "./home.scss";
 import { useSelector } from "react-redux";
 import { useCallback, useEffect, useState } from "react";
-import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
-import { useFetchMovies } from "../hooks/useFetchMovies";
+import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import { useFetchMovies } from "../../hooks/useFetchMovies";
 import { useSearchParams } from "react-router-dom";
 
-const Movies = ({ viewTrailer }) => {
+const Home = () => {
   const { movies, fetchStatus, totalPages } = useSelector(
     (state) => state.movies
   );
   const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get("search");
-  const pageQuery = searchParams.get("page");
+  const pageQuery = Number(searchParams.get("page"));
   const [page, setPage] = useState(pageQuery || 1);
   const hasMore = page < totalPages;
 
@@ -24,7 +24,7 @@ const Movies = ({ viewTrailer }) => {
 
   useEffect(() => {
     setPage(pageQuery);
-  }, [pageQuery]);
+  }, [pageQuery, searchQuery, setSearchParams]);
 
   const lastMovieElementRef = useInfiniteScroll(
     hasMore,
@@ -40,18 +40,15 @@ const Movies = ({ viewTrailer }) => {
             <Movie
               movie={movie}
               key={movie.id}
-              viewTrailer={viewTrailer}
               lastMovieRef={lastMovieElementRef}
             />
           );
         } else {
-          return (
-            <Movie movie={movie} key={movie.id} viewTrailer={viewTrailer} />
-          );
+          return <Movie movie={movie} key={movie.id} />;
         }
       })}
     </div>
   );
 };
 
-export default Movies;
+export default Home;
