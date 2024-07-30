@@ -1,27 +1,68 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
+import {
+  createAsyncThunk,
+  createEntityAdapter,
+  createSlice,
+} from "@reduxjs/toolkit";
 
-export const fetchMovies = createAsyncThunk('fetch-movies', async (apiUrl) => {
-    const response = await fetch(apiUrl)
-    return response.json()
-})
+export const fetchMovies = createAsyncThunk(
+  "fetch-movies",
+  async ({ apiUrl, page }) => {
+    try {
+      const response = await fetch(`${apiUrl}&page=${page}`);
+      if (response.ok) {
+        const data = await response.json();
+        return { movies: data.results, totalPages: data.total_pages };
+      } else return;
+    } catch (e) {
+      console.log("Error: " + e);
+    }
+  }
+);
+
+export const moviesAdapter = createEntityAdapter({
+  selectId: (movie) => movie.id,
+});
 
 const moviesSlice = createSlice({
-    name: 'movies',
-    initialState: { 
+  name: "movies",
+  initialState: moviesAdapter.getInitialState({
+    fetchStatus: "",
+    totalPages: 0,
+    page: 1,
+    searchQuery: "",
+  }),
+  reducers: {
+    reset: () => {
+      return moviesAdapter.getInitialState({
         movies: [],
-        fetchStatus: '',
+        fetchStatus: "",
+        totalPages: 0,
+        page: 1,
+        searchQuery: "",
+      });
     },
-    reducers: {},
-    extraReducers: (builder) => {
-        builder.addCase(fetchMovies.fulfilled, (state, action) => {
-            state.movies = action.payload
-            state.fetchStatus = 'success'
-        }).addCase(fetchMovies.pending, (state) => {
-            state.fetchStatus = 'loading'
-        }).addCase(fetchMovies.rejected, (state) => {
-            state.fetchStatus = 'error'
-        })
-    }
-})
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchMovies.fulfilled, (state, action) => {
+        moviesAdapter.upsertMany(state, action.payload.movies);
+        state.page += 1;
+        state.totalPages = action.payload.totalPages;
+        state.fetchStatus = "success";
+      })
+      .addCase(fetchMovies.pending, (state) => {
+        state.fetchStatus = "loading";
+      })
+      .addCase(fetchMovies.rejected, (state) => {
+        state.fetchStatus = "error";
+      });
+  },
+});
 
-export default moviesSlice
+const { selectAll: selectAllMovies } = moviesAdapter.getSelectors(
+  (state) => state.movies
+);
+
+export { selectAllMovies };
+export const { reset } = moviesSlice.actions;
+export default moviesSlice;

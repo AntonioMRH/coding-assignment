@@ -1,0 +1,167 @@
+header {
+  position: fixed;
+  z-index: 999;
+  width: 100%;
+  height: 3rem;
+  min-height: 50px;
+  color: #fff;
+  background: rgba(0, 8, 81, 0.8);
+  border: 1px solid transparent;
+  border-radius: 0;
+
+  button.home-btn {
+    position: absolute;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    background: transparent;
+  }
+
+  .input-group {
+    float: right;
+    width: 200px;
+    margin: 0.7rem 0 0;
+    position: relative;
+
+    @media (max-width: 720px) {
+      width: 150px;
+    }
+
+    input {
+      height: 25px;
+      font-size: 0.8rem;
+      width: calc(100% - 25px);
+      padding-right: 25px;
+
+      &::-ms-clear {
+        display: none;
+        width: 0;
+        height: 0;
+      }
+      &::-ms-reveal {
+        display: none;
+        width: 0;
+        height: 0;
+      }
+      /* clears the ‘X’ from Chrome */
+      &::-webkit-search-decoration,
+      &::-webkit-search-cancel-button,
+      &::-webkit-search-results-button,
+      &::-webkit-search-results-decoration {
+        display: none;
+        width: 0;
+        height: 0;
+      }
+    }
+
+    .btn-clear {
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 100%;
+      background: transparent;
+      border: none;
+
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 25px;
+      z-index: 1000;
+
+      .bi-x {
+        font-size: 1rem;
+        color: black;
+      }
+
+      .bi-x:hover {
+        color: #e50914;
+      }
+    }
+
+    .bi {
+      color: #fff;
+    }
+
+    .search-link {
+      color: #111111;
+      text-decoration: none;
+    }
+  }
+
+  nav {
+    position: relative;
+    float: right;
+    margin: 0.5rem 1rem 0;
+
+    a {
+      display: inline-block;
+      margin: 0 0.2rem 0;
+
+      &.nav-fav {
+        font-size: 0.8rem;
+        color: #ccc;
+        text-decoration: none;
+
+        &:hover {
+          color: #fff;
+        }
+      }
+    }
+  }
+
+  i {
+    margin: 0.5rem;
+    font-size: 1.2rem;
+    color: #fff;
+
+    &:hover {
+      color: #fff;
+    }
+
+    + .star-number {
+      position: absolute;
+      top: 1rem;
+      right: 6.1rem;
+      padding: 0.5rem 0.3rem;
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: #fff;
+      background: red;
+      border-radius: 50%;
+    }
+
+    &.bi-film {
+      float: left;
+      margin-left: 1.5rem;
+      font-size: 1.3rem;
+      color: #e9ecef;
+    }
+
+    &.bi-star-fill,
+    &.bi-heart-fill {
+      color: #e50914;
+      animation: blink 0.4s;
+
+      &.bi-star-fill-white,
+      &.bi-heart-fill-white {
+        color: #fff;
+      }
+    }
+
+    @keyframes blink {
+      50% {
+        color: red;
+      }
+    }
+  }
+
+  .selected {
+    i {
+      color: #fff;
+    }
+  }
+}
