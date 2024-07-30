@@ -48,7 +48,7 @@ const Movie = ({ movie, viewTrailer, lastMovieRef }) => {
     viewTrailer(movie);
   }, [viewTrailer, movie]);
 
-  const myClickHandler = useCallback((e) => {
+  const handleCloseMobileMovieCard = useCallback((e) => {
     if (!e) e = window.event;
     e.stopPropagation();
     e.target.parentElement.parentElement.classList.remove("opened");
@@ -134,7 +134,7 @@ const Movie = ({ movie, viewTrailer, lastMovieRef }) => {
         <button
           type="button"
           className="close"
-          onClick={myClickHandler}
+          onClick={handleCloseMobileMovieCard}
           aria-label="Close"
         >
           <span aria-hidden="true">&times;</span>

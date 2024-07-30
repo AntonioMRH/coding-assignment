@@ -6,10 +6,15 @@ import {
   useSearchParams,
   useNavigate,
 } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import "reactjs-popup/dist/index.css";
 import { fetchMovies } from "./data/moviesSlice";
-import { ENDPOINT_SEARCH, ENDPOINT, API_KEY } from "./constants";
+import {
+  ENDPOINT_SEARCH,
+  ENDPOINT,
+  API_KEY,
+  ENDPOINT_DISCOVER,
+} from "./constants";
 import Header from "./components/Header";
 import Movies from "./components/Movies";
 import Starred from "./components/Starred";
@@ -17,43 +22,27 @@ import WatchLater from "./components/WatchLater";
 import YouTubePlayer from "./components/YoutubePlayer";
 import "./app.scss";
 import Modal from "./components/Modal";
-import { useFetchMovies } from "./hooks/useFetchMovies";
-import { useInfiniteScroll } from "./hooks/useInfiniteScroll";
 import { debounce } from "./utils/debounce";
 
 const App = () => {
-  const { movies, fetchStatus, totalPages } = useSelector(
-    (state) => state.movies
-  );
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
-  const searchQuery = searchParams.get("search");
   const [videoKey, setVideoKey] = useState(null);
   const [isOpen, setOpen] = useState(false);
-  const [page, setPage] = useState(1);
-  const hasMore = page < totalPages;
+
   const navigate = useNavigate();
-
-  useFetchMovies(searchQuery, page);
-
-  const incrementPage = useCallback(() => {
-    setPage((prevPage) => prevPage + 1);
-  }, []);
-
-  const lastMovieElementRef = useInfiniteScroll(
-    hasMore,
-    fetchStatus === "loading",
-    incrementPage
-  );
 
   const closeModal = () => setOpen(false);
 
   const debouncedSearchMovies = useMemo(
     () =>
       debounce((query) => {
+        const endpoint =
+          query === ""
+            ? `${ENDPOINT_DISCOVER}&page=1`
+            : `${ENDPOINT_SEARCH}&query=${query}&page=1`;
         navigate("/");
-        setPage(1);
-        dispatch(fetchMovies(`${ENDPOINT_SEARCH}&query=${query}&page=1`));
+        dispatch(fetchMovies(endpoint));
         setSearchParams(createSearchParams({ search: query }));
       }, 500),
     [dispatch, navigate, setSearchParams]
@@ -104,16 +93,7 @@ const App = () => {
           </Modal>
         )}
         <Routes>
-          <Route
-            path="/"
-            element={
-              <Movies
-                movies={movies}
-                viewTrailer={viewTrailer}
-                lastMovieRef={lastMovieElementRef}
-              />
-            }
-          />
+          <Route path="/" element={<Movies viewTrailer={viewTrailer} />} />
           <Route
             path="/starred"
             element={<Starred viewTrailer={viewTrailer} />}

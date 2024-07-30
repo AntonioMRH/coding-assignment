@@ -1,19 +1,36 @@
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import {
+  createSearchParams,
+  Link,
+  NavLink,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import "../styles/header.scss";
+import { debounce } from "../utils/debounce";
 
 const Header = ({ searchMovies }) => {
   const starredMovies = useSelector((state) => state.starred.starredMovies);
   const [searchValue, setSearchValue] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  const debouncedSetSearchParams = useMemo(
+    () =>
+      debounce((value) => {
+        setSearchParams(createSearchParams({ search: value, page: 1 }));
+      }, 500),
+    [setSearchParams]
+  );
 
   const handleSearch = useCallback(
     (e) => {
-      setSearchValue(e.target.value);
-      searchMovies(e.target.value);
+      const value = e.target.value;
+      setSearchValue(value);
+      debouncedSetSearchParams(value);
     },
-    [searchMovies]
+    [debouncedSetSearchParams]
   );
 
   const handleHomeClick = useCallback(() => {
@@ -24,10 +41,9 @@ const Header = ({ searchMovies }) => {
 
   return (
     <header>
-      <Link to="/" data-testid="home" onClick={handleHomeClick}>
+      <Link to="/" data-testid="home">
         <i className="bi bi-film" />
       </Link>
-
       <nav>
         <NavLink
           to="/starred"

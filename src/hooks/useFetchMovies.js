@@ -9,6 +9,7 @@ export const useFetchMovies = (searchQuery, page) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
+    console.log(searchQuery);
     const endpoint = searchQuery
       ? `${ENDPOINT_SEARCH}&query=${searchQuery}&page=${page}`
       : `${ENDPOINT_DISCOVER}&page=${page}`;
