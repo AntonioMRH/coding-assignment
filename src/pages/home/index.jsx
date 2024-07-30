@@ -1,41 +1,53 @@
 import Movie from "../../components/Movie";
 import "./home.scss";
-import { useSelector } from "react-redux";
-import { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useCallback, useEffect } from "react";
 import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
-import { useFetchMovies } from "../../hooks/useFetchMovies";
 import { useSearchParams } from "react-router-dom";
+import { ENDPOINT_DISCOVER, ENDPOINT_SEARCH } from "../../constants";
+import { fetchMovies, reset, selectAllMovies } from "../../data/moviesSlice";
 
 const Home = () => {
-  const { movies, fetchStatus, totalPages } = useSelector(
+  const { fetchStatus, totalPages, page } = useSelector(
     (state) => state.movies
   );
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("search");
-  const pageQuery = Number(searchParams.get("page"));
-  const [page, setPage] = useState(pageQuery || 1);
+  const allMovies = useSelector(selectAllMovies);
+
   const hasMore = page < totalPages;
+  const dispatch = useDispatch();
 
-  useFetchMovies(searchQuery, page);
+  const fetchMovieList = useCallback(() => {
+    const endpoint = searchQuery
+      ? `${ENDPOINT_SEARCH}&query=${searchQuery}`
+      : ENDPOINT_DISCOVER;
 
-  const incrementPage = useCallback(() => {
-    setPage((prevPage) => prevPage + 1);
-  }, []);
+    dispatch(reset());
+    dispatch(fetchMovies({ apiUrl: endpoint, page: 1 }));
+  }, [searchQuery, dispatch]);
+
+  const fetchNextPage = () => {
+    const endpoint = searchQuery
+      ? `${ENDPOINT_SEARCH}&query=${searchQuery}`
+      : ENDPOINT_DISCOVER;
+    dispatch(fetchMovies({ apiUrl: endpoint, page: page }));
+  };
 
   useEffect(() => {
-    setPage(pageQuery);
-  }, [pageQuery, searchQuery, setSearchParams]);
+    fetchMovieList();
+  }, [fetchMovieList]);
 
   const lastMovieElementRef = useInfiniteScroll(
     hasMore,
-    fetchStatus === "loading",
-    incrementPage
+    fetchStatus,
+    fetchNextPage
   );
 
   return (
     <div data-testid="movies" className="movies-container">
-      {movies?.map((movie, idx) => {
-        if (movies.length === idx + 1) {
+      {allMovies?.map((movie, idx) => {
+        if (allMovies.length === idx + 1) {
           return (
             <Movie
               movie={movie}

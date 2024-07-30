@@ -1,4 +1,4 @@
-import moviesSlice, { fetchMovies } from "../data/moviesSlice";
+import moviesSlice, { fetchMovies, moviesAdapter } from "../data/moviesSlice";
 import { moviesMock } from "./movies.mocks";
 
 describe("MovieSlice test", () => {
@@ -7,7 +7,6 @@ describe("MovieSlice test", () => {
     const initialState = {
       movies: [],
       fetchStatus: "",
-      totalPages: 0,
     };
     const state = moviesSlice.reducer(initialState, action);
     expect(state.fetchStatus).toEqual("loading");
@@ -16,20 +15,29 @@ describe("MovieSlice test", () => {
   it("should return payload when action is fulfilled", () => {
     const action = {
       type: fetchMovies.fulfilled,
-      payload: moviesMock,
-      meta: {
-        arg: "",
+      payload: {
+        movies: moviesMock.results,
+        totalPages: moviesMock.total_pages,
       },
     };
-    const initialState = {
-      movies: [],
+    const initialState = moviesAdapter.getInitialState({
       fetchStatus: "",
-      totalPages: 1,
-    };
+      totalPages: 0,
+      page: 1,
+      searchQuery: "",
+    });
+
     const state = moviesSlice.reducer(initialState, action);
-    expect(state.movies).toEqual(moviesMock.results);
-    expect(state.totalPages).toEqual(moviesMock.total_pages);
+    expect(state.entities).toEqual(
+      moviesMock.results.reduce((acc, movie) => {
+        acc[movie.id] = movie;
+        return acc;
+      }, {})
+    );
+    expect(state.ids).toEqual(moviesMock.results.map((movie) => movie.id));
     expect(state.fetchStatus).toEqual("success");
+    expect(state.page).toEqual(2); // Since page is incremented by 1
+    expect(state.totalPages).toEqual(moviesMock.total_pages);
   });
 
   it("should set error when action is rejected", () => {

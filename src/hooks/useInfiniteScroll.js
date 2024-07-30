@@ -1,11 +1,11 @@
 import { useCallback, useRef } from "react";
 
-export const useInfiniteScroll = (hasMore, isLoading, callback) => {
+export const useInfiniteScroll = (hasMore, fetchStatus, callback) => {
   const observer = useRef();
 
   const lastElementRef = useCallback(
     (node) => {
-      if (isLoading) return;
+      if (fetchStatus === "loading") return;
       if (observer.current) observer.current.disconnect();
 
       observer.current = new IntersectionObserver((entries) => {
@@ -16,7 +16,7 @@ export const useInfiniteScroll = (hasMore, isLoading, callback) => {
 
       if (node) observer.current.observe(node);
     },
-    [isLoading, hasMore, callback]
+    [fetchStatus, hasMore, callback]
   );
 
   return lastElementRef;

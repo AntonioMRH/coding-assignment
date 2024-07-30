@@ -2,55 +2,50 @@ import {
   createSearchParams,
   Link,
   NavLink,
-  useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useMemo, useState } from "react";
 import "./header.scss";
-import { debounce } from "../../../utils/debounce";
+import { debounce } from "../../utils/debounce";
+import { reset } from "../../data/moviesSlice";
 
 const Header = () => {
   const starredMovies = useSelector((state) => state.starred.starredMovies);
+  const dispatch = useDispatch();
   const [searchValue, setSearchValue] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
 
-  const debouncedSetSearchParams = useMemo(
+  const getSearchedMovies = useMemo(
     () =>
-      debounce((value) => {
-        window.scrollTo({
-          top: 0,
-          left: 0,
-          behavior: "auto",
-        });
-        setSearchParams(createSearchParams({ search: value, page: 1 }));
-      }, 500),
-    [setSearchParams]
+      debounce((query) => {
+        if (query !== "") {
+          dispatch(reset());
+          setSearchParams(createSearchParams({ search: query }));
+        } else {
+          dispatch(reset());
+          setSearchParams(createSearchParams({ search: "" }));
+        }
+      }, 400),
+    [dispatch, setSearchParams]
   );
 
   const handleSearch = (e) => {
     const value = e.target.value;
     setSearchValue(value);
-    debouncedSetSearchParams(value);
+    window.scrollTo({ top: 0, behavior: "instant" });
+    getSearchedMovies(value);
   };
 
-  const handleHomeClick = debounce(() => {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "auto",
-    });
-    navigate("/");
+  const handleHomeClick = () => {
     setSearchValue("");
-    setSearchParams(createSearchParams({ page: 1 }));
-  }, 200);
+  };
 
   return (
     <header>
-      <button data-testid="home" onClick={handleHomeClick} className="home-btn">
+      <Link data-testid="home" to="/" onClick={handleHomeClick}>
         <i className="bi bi-film" />
-      </button>
+      </Link>
       <nav>
         <NavLink
           to="/starred"
@@ -87,9 +82,9 @@ const Header = () => {
           aria-describedby="search-addon"
         />
         {searchValue && (
-          <button className="btn btn-clear" onClick={handleHomeClick}>
+          <Link className="btn btn-clear" to="/" onClick={handleHomeClick}>
             <i className="bi bi-x" />
-          </button>
+          </Link>
         )}
       </div>
     </header>

@@ -15,5 +15,6 @@ export const moviesMock = {
       poster_path: "/path/to/poster2.jpg",
     },
   ],
+  page: 1,
   total_pages: 1,
 };

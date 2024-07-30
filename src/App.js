@@ -4,7 +4,7 @@ import Home from "./pages/home";
 import Starred from "./pages/starred";
 import WatchLater from "./pages/watch-later";
 import "./app.scss";
-import Header from "./components/Layout/Header";
+import Header from "./components/Header";
 
 const App = () => {
   return (

@@ -1,28 +1,53 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createEntityAdapter,
+  createSlice,
+} from "@reduxjs/toolkit";
 
-export const fetchMovies = createAsyncThunk("fetch-movies", async (apiUrl) => {
-  const response = await fetch(apiUrl);
-  return response.json();
+export const fetchMovies = createAsyncThunk(
+  "fetch-movies",
+  async ({ apiUrl, page }) => {
+    try {
+      const response = await fetch(`${apiUrl}&page=${page}`);
+      if (response.ok) {
+        const data = await response.json();
+        return { movies: data.results, totalPages: data.total_pages };
+      } else return;
+    } catch (e) {
+      console.log("Error: " + e);
+    }
+  }
+);
+
+export const moviesAdapter = createEntityAdapter({
+  selectId: (movie) => movie.id,
 });
 
 const moviesSlice = createSlice({
   name: "movies",
-  initialState: {
-    movies: [],
+  initialState: moviesAdapter.getInitialState({
     fetchStatus: "",
     totalPages: 0,
+    page: 1,
+    searchQuery: "",
+  }),
+  reducers: {
+    reset: () => {
+      return moviesAdapter.getInitialState({
+        movies: [],
+        fetchStatus: "",
+        totalPages: 0,
+        page: 1,
+        searchQuery: "",
+      });
+    },
   },
-  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchMovies.fulfilled, (state, action) => {
-        if (action.meta.arg.includes("page=1")) {
-          state.movies = action.payload.results; // Replace movies on first page load
-          state.totalPages = action.payload.total_pages;
-        } else {
-          state.movies = [...state.movies, ...action.payload.results]; // Append movies on subsequent page loads
-        }
-
+        moviesAdapter.upsertMany(state, action.payload.movies);
+        state.page += 1;
+        state.totalPages = action.payload.totalPages;
         state.fetchStatus = "success";
       })
       .addCase(fetchMovies.pending, (state) => {
@@ -34,4 +59,10 @@ const moviesSlice = createSlice({
   },
 });
 
+const { selectAll: selectAllMovies } = moviesAdapter.getSelectors(
+  (state) => state.movies
+);
+
+export { selectAllMovies };
+export const { reset } = moviesSlice.actions;
 export default moviesSlice;
