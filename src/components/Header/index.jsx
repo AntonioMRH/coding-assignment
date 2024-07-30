@@ -7,8 +7,8 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useMemo, useState } from "react";
 import "./header.scss";
-import { debounce } from "../../utils/debounce";
 import { reset } from "../../data/moviesSlice";
+import { debounce } from "../../utils/debouce";
 
 const Header = () => {
   const starredMovies = useSelector((state) => state.starred.starredMovies);
